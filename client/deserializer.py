@@ -11,7 +11,11 @@ class Endianness(enum.Enum):
 class AccountStateBlobDeserializer():
     """AccountStateBlob Deserializer
 
-    Value Encoding:
+    Note: for an exact byte-layout please refere to the `account_config.rs` file
+          on the Libra codebase.
+          https://github.com/libra/libra/blob/master/types/src/account_config.rs#L129
+
+    Encoding:
     +---------+---------+---------+---------+---------+---------+
     | 4 Bytes | N Bytes | 8 Bytes | 8 Bytes | 8 Bytes | 8 Bytes |
     +---------+---------+---------+---------+---------+---------+
@@ -29,12 +33,11 @@ class AccountStateBlobDeserializer():
         + Authentication Key Length
 
     """
-    def __init__(self, blob: bytes) -> None:
-        self._blob = blob
-
-    def run(self) -> dict:
+    @staticmethod
+    def from_bytes(blob: bytes) -> dict:
+        """Deserialize a AccountStateBlob from a byte-array"""
         deserializer = LibraDeserializer()
-        btree = deserializer.decode_btreemap(self._blob)
+        btree = deserializer.decode_btreemap(blob)
         for _, v in btree.items():
             blob = bytearray(v)
             (authentication_key, remaining_blob) = deserializer.decode_variable_length_bytes(blob)
@@ -44,7 +47,7 @@ class AccountStateBlobDeserializer():
             (sequence_number,_) = deserializer.decode_uint64(remaining_blob)
             return {
                 'authentication_key': authentication_key.hex(),
-                'balance': float(balance) / 1000000,
+                'balance': balance,
                 'received_events_count': received_events_count,
                 'sent_events_count': sent_events_count,
                 'sequence_number': sequence_number
@@ -55,13 +58,17 @@ class AccountStateBlobDeserializer():
 class LibraDeserializer():
     """Libra types deserializer
 
+    Note: for more information read the source code of the libra codebase that
+          does this deserializetion: `canonical_serialization/lib.rs`
+          https://github.com/libra/libra/blob/master/common/canonical_serialization/src/lib.rs
+
     BTreeMap Binary Encoding:
     +----------------------------------+----------------------+-----+------------------------+-------+-------+
     | No. Of Key-Value Pairs (4 Bytes) | Key Length (4 Bytes) | Key | Value Length (4 Bytes) | Value | Cont. |
     +----------------------------------+----------------------+-----+------------------------+-------+-------+
 
     """
-    def __init__(self, endianness: Endianness = Endianness.LITTLE_ENDIAN) -> None:
+    def __init__(self, byteorder: Endianness = Endianness.LITTLE_ENDIAN) -> None:
         self._endianness = endianness
 
     def _get_endianness_sign(self) -> str:

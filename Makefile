@@ -26,7 +26,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 install-dev:
-  pip install -r requirements_dev.txt
+	python -m pip install -r requirements_dev.txt
 
 lint: ## check style with flake8
 	mypy --ignore-missing-imports client tests
@@ -68,3 +68,6 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+run:
+	python client/main.py

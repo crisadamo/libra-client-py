@@ -24,13 +24,16 @@ class LibraClient():
         items = get_with_proof_pb2.RequestItem(
             get_account_state_request=acc_req)
         req = get_with_proof_pb2.UpdateToLatestLedgerRequest(
-            client_known_version=1, requested_items=[items])
+            client_known_version=0, requested_items=[items])
         resp = self._stub.UpdateToLatestLedger(req).response_items[0]
         raw_blob = resp.get_account_state_response.account_state_with_proof.blob
-        return AccountStateBlobDeserializer(raw_blob.blob).run()
+        return AccountStateBlobDeserializer.from_bytes(raw_blob.blob)
+
+    def _update_to_latest_ledger(req):
+        pass
 
 
-def run():
+def run:
     client = LibraClient("ac.testnet.libra.org", "8000")
     account = '0d5c7d17fd85f19097151fba72a0ef7d6078d58feabecf1ac39db7c6e4d6f6aa'
     account_state = client.get_account_state(account)
