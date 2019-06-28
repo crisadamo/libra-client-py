@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+
+root = true
+
+[*]
+end_of_line = lf
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.py]
+indent_size = 4
+
+[*.sh]
+indent_size = 2
+
+[*.{js,sql}]
+indent_size = 2
+
+[*.{md,rst}]
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{htm,html,css}]
+indent_size = 2
